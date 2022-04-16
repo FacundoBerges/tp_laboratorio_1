@@ -8,6 +8,7 @@
 #ifndef INPUTS_H_
 #define INPUTS_H_
 
+
 /// @brief Funcion para validar kilometros ingresados. permite ingresar valores de 0 a 16.000, maximo aproximado a realizar en un vuelo comercial.
 /// No permite la salida del usuario hasta que no se ingrese un valor entre esos numeros, ambos incluidos.
 ///

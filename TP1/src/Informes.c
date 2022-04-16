@@ -55,6 +55,7 @@ void MostrarMenu(void){
 	setbuf(stdout, NULL);
 
 	do {
+
 		system("cls");
 		printf("CALCULADORA DE VUELOS AEREOS\n\n\n");
 		MostrarOpcionesMenu(kilometrosIngresados, precioBaseAerolineas, precioBaseLatam);
@@ -197,8 +198,7 @@ void MostrarMenu(void){
 				}
 				break;
 			default:
-				printf("ERROR. La opcion ingresada no es valida. Reingrese una opcion (opciones 1 a 6): \n\n");
-				system("pause");
+				printf("ERROR. La opcion ingresada no es valida. Reingrese una opcion (opciones 1 a 6).\n");
 				break;
 		}
 
@@ -218,9 +218,6 @@ void MostrarOpcionesMenu(int kilometros, float precioAerolineas, float precioLat
 	printf("5. Carga forzada de datos \n");
 	printf("6. Salir \n\n");
 }
-
-
-
 
 
 void InformarResultados(int kms, float precioLinea1, float precioDebitoLinea1, float precioCreditoLinea1, float precioBTCLinea1, float precioUnitarioLinea1, float precioLinea2, float precioDebitoLinea2, float precioCreditoLinea2, float precioBTCLinea2, float precioUnitarioLinea2, float diferenciaDePrecios)
