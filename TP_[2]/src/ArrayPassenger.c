@@ -19,7 +19,7 @@
 #define QTY_NAME 51
 #define QTY_TYPE 21
 #define QTY_CODE 10
-#define MAX_PRICE 1000000000.00
+#define MAX_PRICE 100000000.00
 
 //flight status
 #define ACTIVO 1
@@ -394,7 +394,7 @@ int emptyPassenger(sPassenger* list, int len)
 	{
 		for(i = 0; i < len; i++)
 		{
-			if(list[i].isEmpty)
+			if(list[i].isEmpty == TRUE)
 			{
 				ret = i;
 				break;
@@ -436,7 +436,7 @@ int removePassenger(sPassenger* list, int len, int id)
 	{
 		for(i = 0; i < len; i++)
 		{
-			if(list[i].id == id && !(list[i].isEmpty))
+			if(list[i].id == id && list[i].isEmpty == FALSE)
 			{
 				list[i].isEmpty = TRUE;
 				ret = 0;
@@ -488,7 +488,7 @@ int printAllPassengers(sPassenger* list, int length, sTypePassenger* typePasseng
 
 		for(i = 0; i < length; i++)
 		{
-			if( list[i].isEmpty != TRUE) // If occupied.
+			if( list[i].isEmpty == FALSE) // If occupied.
 			{
 				printAPassenger(list[i], typePassengers, typesLen, FlightsStatus, statusLen);
 			}
@@ -625,7 +625,7 @@ int findOccupied(sPassenger* list, int len)
 	{
 		for(i = 0; i < len; i++)
 		{
-			if(!(list[i].isEmpty)) // If occupied.
+			if( list[i].isEmpty == FALSE) // If occupied.
 			{
 				ret = 0;
 				break;
@@ -790,7 +790,7 @@ int countOccupied(sPassenger* list, int len)
 
 		for(i = 0; i < len; i++)
 		{
-			if(!(list[i].isEmpty)) // If occupied.
+			if( list[i].isEmpty == FALSE ) // If occupied.
 			{
 				ret++;
 			}
@@ -807,7 +807,7 @@ int verifyOccupied(sPassenger* list, int indexPosition)
 
 	if(list != NULL && indexPosition >= 0)
 	{
-		if( !(list[indexPosition].isEmpty) )
+		if( list[indexPosition].isEmpty == FALSE )
 		{
 			retorno = indexPosition;
 		}

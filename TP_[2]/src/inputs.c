@@ -20,11 +20,169 @@
 //#define fflush __fpurge	// para linux
 
 
+static int myGets(char* str, int len);
+static int getInt(int *pResult);
+static int esNumericoInt(char str[]);
+static int getFloat(float *pResult);
+static int esNumericoFloat(char str[]);
+
+
+/**
+ * @fn int myGetS(char*, int)
+ * @brief
+ *
+ * @param str
+ * @param len
+ * @return
+ */
+static int myGets(char* str, int len)
+{
+	int rtn = -1;
+
+	fflush(stdin);
+	if(str != NULL && len > 0 && fgets(str, len, stdin) == str)
+	{
+		if(str[strlen(str)-1] == '\n')
+		{
+			str[strlen(str)-1] = '\0';
+		}
+
+		rtn = 0;
+	}
+
+	return rtn;
+}
+
+
+/**
+ * @fn int getInt(int*)
+ * @brief
+ *
+ * @param pResult
+ * @return
+ */
+static int getInt(int *pResult)
+{
+	int rtn = -1;
+	char buffer[64];
+
+	if(pResult != NULL)
+	{
+		if(myGets(buffer, sizeof(buffer)) == 0 && esNumericoInt(buffer) )
+		{
+			*pResult = atoi(buffer);
+			rtn = 0;
+		}
+	}
+
+	return rtn;
+}
+
+
+
+
+
+
+int utn_getNumeroInt(int* pResult, char* msge, char* errorMsge, int min, int max, int retries)
+{
+	int rtn = -1;
+	int bufferInt;
+
+	if(pResult != NULL && msge != NULL && errorMsge != NULL && min <= max && retries >= 0)
+	{
+		do
+		{
+			printf("%s", msge);
+
+			if( getInt(&bufferInt) == 0 && bufferInt >= min && bufferInt <= max)
+			{
+				*pResult = bufferInt;
+				rtn = 0;
+				break;
+			}
+			else
+			{
+				printf("%s", errorMsge);
+				retries--;
+			}
+		} while(retries >= 0);
+	}
+
+	return rtn;
+}
+
+
+
+
+/**
+ * @fn int getFloat(float*)
+ * @brief
+ *
+ * @param pResult
+ * @return
+ */
+static int getFloat(float *pResult)
+{
+	int rtn = -1;
+	char buffer[64];
+
+	if(pResult != NULL)
+	{
+		if(myGets(buffer, sizeof(buffer)) == 0 && esNumericoFloat(buffer) )
+		{
+			*pResult = atof(buffer);
+			rtn = 0;
+		}
+	}
+
+	return rtn;
+}
+
+
+
+int utn_getNumeroFloat(float* pResult, char* msge, char* errorMsge, float min, float max, int retries)
+{
+	int rtn = -1;
+	int bufferFloat;
+
+	if(pResult != NULL && msge != NULL && errorMsge != NULL && min <= max && retries >= 0)
+	{
+		do
+		{
+			printf("%s", msge);
+
+			if( getFloat(&bufferFloat) == 0 && bufferFloat >= min && bufferFloat <= max)
+			{
+				*pResult = bufferFloat;
+				rtn = 0;
+				break;
+			}
+			else
+			{
+				printf("%s", errorMsge);
+				retries--;
+			}
+		} while(retries >= 0);
+	}
+
+	return rtn;
+}
+
+
+
+
+
+
+
+
+
+
+
 /*------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------INPUT----------------------------------------------------------------------------*/
 /*------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-
+/*
 int printMenu(char message[], int qtyOptions)
 {
 	char auxOption[1];
@@ -40,7 +198,7 @@ int printMenu(char message[], int qtyOptions)
 	}
 
 	return option;
-}
+}*/
 
 
 int getString(char message[], char cadena[], int len, int retries)
@@ -74,7 +232,7 @@ int getString(char message[], char cadena[], int len, int retries)
 	return ret;
 }
 
-
+/*
 int getInt(char mensaje[], int limiteMenor, int limiteMayor, int reintentos)
 {
 	int numIngresado;
@@ -103,8 +261,10 @@ int getInt(char mensaje[], int limiteMenor, int limiteMayor, int reintentos)
 	}
 
 	return numIngresado;
-}
+}*/
 
+
+/*
 int pedirNumFlotante(char mensaje[], float limiteMenor, float limiteMayor, float* pNumeroFlotante, int reintentos)
 {
 	int retorno = -1;
@@ -133,9 +293,9 @@ int pedirNumFlotante(char mensaje[], float limiteMenor, float limiteMayor, float
 	}
 
 	return retorno;
-}
+}*/
 
-
+/*
 int cambiarString_Entero(char cadena[], int* pEntero)
 {
 	int retorno = -1;
@@ -147,9 +307,9 @@ int cambiarString_Entero(char cadena[], int* pEntero)
 	}
 
 	return retorno;
-}
+}*/
 
-
+/*
 int cambiarString_Float(char cadena[], float* pFlotante)
 {
 	int retorno = -1;
@@ -161,7 +321,7 @@ int cambiarString_Float(char cadena[], float* pFlotante)
 	}
 
 	return retorno;
-}
+}*/
 
 
 int utn_getCaracter(char* pResultado, char* mensaje, char* mensajeError, char minimo, char maximo, int reintentos)
@@ -197,39 +357,80 @@ int utn_getCaracter(char* pResultado, char* mensaje, char* mensajeError, char mi
 /*------------------------------------------------------------------------VALIDACIONES------------------------------------------------------------------------*/
 /*------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-int esNumericoInt(char str[])
+/**
+ * @fn int esNumericoInt(char[])
+ * @brief
+ *
+ * @param str
+ * @return
+ */
+static int esNumericoInt(char str[])
 {
 	int retorno = 1;
 	int i=0;
-	while(str[i] != '\0')
+
+	if(str != NULL && strlen(str) > 0)
 	{
-		if(str[i] < '0' || str[i] > '9')
+
+		while(str[i] != '\0')
 		{
-			retorno = 0;
-			break;
+			if(i == 0 && (str[i] == '-' || str[i] == '+'))
+			{
+				continue;
+			}
+
+			if(str[i] < '0' || str[i] > '9')
+			{
+				retorno = 0;
+				break;
+			}
+			i++;
 		}
-		i++;
 	}
 
 	return retorno;
 }
 
 
-int esNumericoFloat(char str[])
+/**
+ * @fn int esNumericoFloat(char[])
+ * @brief
+ *
+ * @param str
+ * @return
+ */
+static int esNumericoFloat(char str[])
 {
-	int retorno = 1;
-	int i=0;
-	while(str[i] != '\0')
+	int rtn = 1;
+	int i = 0;
+	int contadorPunto = 0;
+
+	if(str != NULL && strlen(str) > 0)
 	{
-		if((str[i] != '.') && (str[i] < '0' || str[i] > '9'))
+		while(str[i] != '\0')
 		{
-			retorno = 0;
-			break;
+			if(i == 0 && (str[i] == '-' || str[i] == '+'))
+			{
+				continue;
+			}
+
+			if((str[i] < '0' || str[i] > '9'))
+			{
+				if(str[i] == '.' && contadorPunto == 0)
+				{
+					contadorPunto++;
+				}
+				else
+				{
+					rtn = 0;
+					break;
+				}
+			}
+			i++;
 		}
-		i++;
 	}
 
-	return retorno;
+	return rtn;
 }
 
 

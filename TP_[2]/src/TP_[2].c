@@ -24,6 +24,7 @@ int main(void) {
 	setbuf(stdout, NULL);
 
 	int option;
+	int arrayCargado;
 
 	sTypePassenger typePassenger[MAX_TYPE_PASSENGER] = {	{101, "ECONOMICA"},
 															{102, "EJECUTIVA"},
@@ -32,12 +33,14 @@ int main(void) {
 														{2, "ATRASADO"},
 														{3, "SUSPENDIDO"}	};
 	sPassenger passengers[MAX_PASSENGER];
+
 	initPassengers(passengers, MAX_PASSENGER);
 
 
 	do
 	{
 		system("cls");
+		arrayCargado = findOccupied(passengers, MAX_PASSENGER);
 		option = printMenu("\n\t\t\tADMINISTRADOR DE PASAJES AEREOS\n\n1. ALTAS\n2. MODIFICAR\n3. BAJA\n4. INFORMAR\n5. CARGA FORZADA DE DATOS\n0. SALIR\n\n", 4);
 		fflush(stdin);
 
@@ -55,7 +58,7 @@ int main(void) {
 				system("pause");
 				break;
 			case 2:
-				if(findOccupied(passengers, MAX_PASSENGER) != -1)
+				if(arrayCargado == 0)
 				{
 					if(modifyPassenger(passengers, MAX_PASSENGER, typePassenger, MAX_TYPE_PASSENGER, flightStatus, MAX_FLIGHT_STATUS) == 0)
 					{
@@ -73,7 +76,7 @@ int main(void) {
 				system("pause");
 				break;
 			case 3:
-				if(findOccupied(passengers, MAX_PASSENGER) != -1)
+				if(arrayCargado == 0)
 				{
 					if(removePassengersMenu(passengers, MAX_PASSENGER, typePassenger, MAX_TYPE_PASSENGER, flightStatus, MAX_FLIGHT_STATUS) == 0)
 					{
@@ -91,7 +94,7 @@ int main(void) {
 				system("pause");
 				break;
 			case 4:
-				if(findOccupied(passengers, MAX_PASSENGER) != -1)
+				if(arrayCargado == 0)
 				{
 					if(reportPassenger(passengers, MAX_PASSENGER, typePassenger, MAX_TYPE_PASSENGER, flightStatus, MAX_FLIGHT_STATUS) != 0)
 					{
