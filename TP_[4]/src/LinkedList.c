@@ -489,22 +489,22 @@ int ll_contains(LinkedList* this, void* pElement)
 int ll_containsAll(LinkedList* this, LinkedList* this2)
 {
     int returnAux = -1;
-    int len;
     int countElements = 0;
-    Node* pNode = NULL;
+    int i;
+    void* pElement = NULL;
 
     if(this != NULL && this2 != NULL)
     {
-    	for(len = 0; len < ll_len(this2); len++)
+    	for(i = 0; i < ll_len(this2); i++)
     	{
-    		pNode = getNode(this2, len);
+    		pElement = ll_get(this2, i);
 
-    		if(pNode != NULL)
+    		if(pElement != NULL)
     		{
-				if(ll_contains(this, pNode->pElement) == 1)
-				{
-					countElements++;
-				}
+    			if(ll_contains(this, pElement) == 1)
+    			{
+    				countElements++;
+    			}
     		}
     	}
 
