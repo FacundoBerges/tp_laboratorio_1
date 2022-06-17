@@ -586,13 +586,45 @@ LinkedList* ll_clone(LinkedList* this)
  * \return int Retorna  (-1) Error: si el puntero a la listas es NULL
                                 ( 0) Si ok
  */
-int ll_sort(LinkedList* this, int (*pFunc)(void* ,void*), int order)
+int ll_sort(LinkedList* this, int (*pFunc)(void* , void*), int order)
 {
     int returnAux =-1;
+    int rtnFunc;
+    int len;
+    int i, j;
+    void* auxElement = NULL;
+    void* pElement = NULL;
+    void* pElement2 = NULL;
 
-    if(this != NULL && pFunc != NULL && order >= 0 && order <= 1)
+    if(this != NULL && pFunc != NULL && order >= 0 && order <= 1 && ll_len(this) >= 0)
     {
+    	len = ll_len(this);
 
+    	if(len > 1)
+    	{
+			for(i = 0; i < len-1; i++)
+			{
+				for(j = i+1; j < len; j++)
+				{
+					pElement = ll_get(this, i);
+					pElement2 = ll_get(this, j);
+
+					if(pElement != NULL && pElement2 != NULL)
+					{
+						rtnFunc = pFunc(pElement, pElement2);
+
+						if( (rtnFunc < 0 && !order) || (rtnFunc > 0 && order) )
+						{
+							auxElement = pElement;
+							ll_set(this, i, pElement2);
+							ll_set(this, j, auxElement);
+						}
+					}
+				}
+			}
+    	}
+
+		returnAux = 0;
     }
 
     return returnAux;
