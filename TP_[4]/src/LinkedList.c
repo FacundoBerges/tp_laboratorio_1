@@ -596,7 +596,7 @@ int ll_sort(LinkedList* this, int (*pFunc)(void* , void*), int order)
     void* pElement = NULL;
     void* pElement2 = NULL;
 
-    if(this != NULL && pFunc != NULL && order >= 0 && order <= 1 && ll_len(this) >= 0)
+    if(this != NULL && pFunc != NULL && (order == 0 || order == 1))
     {
     	len = ll_len(this);
 
