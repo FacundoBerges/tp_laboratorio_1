@@ -60,7 +60,7 @@ int initPassengers(sPassenger* list, int len);
  * @param statusLen	 Array lenght.
  * @return Return (-1) if Error [Invalid length or NULL pointer or invalid data] - (0) if Ok
  */
-int cargarDatos(sPassenger* list, int len, sTypePassenger* typesPassenger, int typesLen, sFlightStatus* statusFlights, int statusLen);
+int cargarDatos(sPassenger* list, int len, sTypePassenger* typesOfPassenger, int typesLen, sFlightStatus* statusFlights, int statusLen, int* qtyPassengers);
 
 
 /**
@@ -124,7 +124,7 @@ int reportPassenger(sPassenger* list, int len, sTypePassenger* typesPassenger, i
  * @param statusLen	 Array lenght.
  * @return  Return (-1) if Error [Invalid length or NULL pointer or couldnt remove] - (0) if Ok
  */
-int removePassengersMenu(sPassenger* list, int len, sTypePassenger* typesPassenger, int typesLen, sFlightStatus* statusFlights, int statusLen);
+int removePassengersMenu(sPassenger* list, int len, sTypePassenger* typesPassenger, int typesLen, sFlightStatus* statusFlights, int statusLen, int* qtyPassengers);
 
 
 /**
@@ -137,7 +137,7 @@ int removePassengersMenu(sPassenger* list, int len, sTypePassenger* typesPasseng
  * @param statusFlights  Pointer to array of flight status.
  * @return Return (-1) if Error [Invalid length or NULL pointer or couldnt remove] - (0) if Ok
  */
-int altaForzada(sPassenger* list, int len, sTypePassenger* typesPassenger, sFlightStatus* statusFlights);
+int altaForzada(sPassenger* list, int len, sTypePassenger* typesPassenger, sFlightStatus* statusFlights, int* qtyPassengers);
 
 
 

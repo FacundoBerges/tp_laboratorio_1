@@ -297,9 +297,6 @@ int main()
 					break;
 			}
 
-			printf("\n");
-			system("pause");
-
 		} while(confirm != 's');
 
 		ll_deleteLinkedList(listaPasajeros);

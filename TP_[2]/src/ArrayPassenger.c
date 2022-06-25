@@ -14,7 +14,7 @@
 #include "ArrayFlight.h"
 #include "inputs.h"
 
-#define ID_INICIAL 1000
+#define ID_INICIAL 1
 
 #define QTY_NAME 51
 #define QTY_TYPE 21
@@ -54,6 +54,13 @@ int initPassengers(sPassenger* list, int len)
 	{
 		for(i = 0; i < len; i++)
 		{
+			list[i].id = 0;
+			strcpy(list[i].name, "");
+			strcpy(list[i].lastname, "");
+			list[i].price = 0;
+			strcpy(list[i].flycode, "");
+			list[i].typePassenger = 0;
+			list[i].statusFlight = 0;
 			list[i].isEmpty = TRUE;
 		}
 
@@ -64,16 +71,12 @@ int initPassengers(sPassenger* list, int len)
 }
 
 
-int cargarDatos(sPassenger* list, int len, sTypePassenger* typesOfPassenger, int typesLen, sFlightStatus* statusFlights, int statusLen)
+int cargarDatos(sPassenger* list, int len, sTypePassenger* typesOfPassenger, int typesLen, sFlightStatus* statusFlights, int statusLen, int* qtyPassengers)
 {
 	int ret = -1;
-	int retName;
-	int retLastname;
-	int retPrice;
-	int retFlycode;
-	int retTypePassenger;
-	int retFlightStatus;
-	int retries = 3;
+	int auxTypePassenger;
+	int auxFlightStatus;
+	int retries = 2;
 
 	int nextId;
 	char name[QTY_NAME];
@@ -83,43 +86,40 @@ int cargarDatos(sPassenger* list, int len, sTypePassenger* typesOfPassenger, int
 	int statusFlight;
 	float price;
 
-	system("cls");
 
 	if(list != NULL && len > 0 && typesOfPassenger != NULL && typesLen > 0 && statusFlights != NULL && statusLen > 0)
 	{
+		system("cls");
 		printf("\n\n\t\t\tALTA\n\n");
-		retName = getString("Ingrese nombre: ", name, QTY_NAME, retries);
-		if(retName != -1 && esSoloLetras(name) )
+
+		if(utn_getStringLetras(name, sizeof(name), "Ingrese nombre: ", "Error. Nombre invalido (solo debe contener letras). ", retries) == 0)
 		{
-			retLastname = getString("Ingrese apellido: ", lastName, QTY_NAME, retries);
-			if(retLastname != -1 && esSoloLetras(lastName) )
+			if(utn_getStringLetras(lastName, sizeof(lastName), "Ingrese apellido: ", "Error. Apellido invalido (solo debe contener letras). ", retries) == 0)
 			{
-				retPrice = pedirNumFlotante("Ingrese precio: ", 0.0, MAX_PRICE, &price, retries);
-				if(retPrice != -1 && price > 0)
+				if(utn_getNumeroFloat(&price, "Ingrese precio: ", "Error. ", 0.01, MAX_PRICE, retries) == 0)
 				{
-					retFlycode = getString("Ingrese codigo de vuelo: ", flycode, QTY_CODE, retries);
-					if(retFlycode != -1 && esAlfaNumerico(flycode))
+					if(utn_getStringAlphaNum(flycode, sizeof(flycode), "Ingrese codigo de vuelo: ", "Error. Codigo invalido (solo debe contener letras y numeros). ", retries) == 0)
 					{
-						if(printAllTypePassengers(typesOfPassenger, typesLen, "\n\n\t\tCLASES DE VUELOS\n") != -1)
+						printAllTypePassengers(typesOfPassenger, typesLen, "\n\n\t\tCLASES DE VUELOS\n");
+						if(utn_getNumeroInt(&auxTypePassenger, "\nIngrese clase de vuelo de pasaje (por numero): ", "Error. ", 1, typesLen, retries) == 0)
 						{
-							retTypePassenger = getInt("\nIngrese clase de vuelo de pasaje: ", 0, typesLen+1, retries);
-							if(retTypePassenger != -1)
+							typePassenger = getTypePassengerByIndex(typesOfPassenger, auxTypePassenger-1);
+
+							if(typePassenger != -1)
 							{
-								typePassenger = getTypePassengerByIndex(typesOfPassenger, retTypePassenger-1);
-								if(typePassenger != -1)
+								printAllStatusFlights(statusFlights, statusLen, "\n\n\t\tSTATUS DEL VUELO\n");
+								if(utn_getNumeroInt(&auxFlightStatus, "\nIngrese estatus correspondiente del vuelo (por numero): ", "Error. ", 1, statusLen, retries) == 0)
 								{
-									if(printAllStatusFlights(statusFlights, statusLen, "\n\n\t\tSTATUS DEL VUELO\n") != -1)
+									statusFlight = getFlightStatusByIndex(statusFlights, auxFlightStatus-1);
+
+									if(statusFlight != -1)
 									{
-										fflush(stdin);
-										retFlightStatus = getInt("\nIngrese estatus correspondiente del vuelo: ", 0, statusLen+1, retries);
-										if(retFlightStatus != -1)
+										nextId = getId();
+										ret = addPassenger(list, len, nextId, name, lastName, price, typePassenger, flycode, statusFlight);
+
+										if(ret == 0)
 										{
-											statusFlight = getFlightStatusByIndex(statusFlights, retFlightStatus-1);
-											if(statusFlight != -1)
-											{
-												nextId = getId();
-												ret = addPassenger(list, len, nextId, name, lastName, price, typePassenger, flycode, statusFlight); // if everythings ok
-											}
+											*qtyPassengers += 1;
 										}
 									}
 								}
@@ -129,7 +129,6 @@ int cargarDatos(sPassenger* list, int len, sTypePassenger* typesOfPassenger, int
 				}
 			}
 		}
-
 	}
 
 	return ret;
@@ -178,87 +177,90 @@ int modifyPassenger(sPassenger* list, int len, sTypePassenger* typesPassenger, i
 		sortPassengersById(list, len, UP);
 		printAllPassengers(list, len, typesPassenger, typesLen, statusFlights, statusLen);
 
-		passengerId = getInt("\nIngrese codigo de dato a modificar: ", ID_INICIAL-1, ID_INICIAL+len+1, 3);
-		passengerIndex = findPassengerById(list, len, passengerId);
-		if(passengerId != -1 && passengerIndex > -1 && list[passengerIndex].isEmpty == FALSE)
+		if(utn_getNumeroInt(&passengerId, "\nIngrese codigo de pasajero a modificar: ", "Error. El codigo ingresado no es un codigo valido. ", ID_INICIAL, ID_INICIAL+len, 2) == 0)
 		{
-			printf("\n\nPasajero a modificar:\n\n");
-			printAPassenger(list[passengerIndex], typesPassenger, typesLen, statusFlights, statusLen);
+			passengerIndex = findPassengerById(list, len, passengerId);
 
-			auxOption = getInt("\n\n- 1. Nombre\n- 2. Apellido\n- 3. Precio\n- 4. Tipo de pasajero\n- 5. Codigo de vuelo\n\nIngrese opcion a modificar: ", 0, 6, 3);
-
-			switch(auxOption)
+			if(passengerIndex >= 0 && list[passengerIndex].isEmpty == FALSE)
 			{
-				case 1:
-					if(modifyName(list, list[passengerIndex].name, passengerIndex) == 0)
+				printf("\n\nPasajero a modificar:\n\n");
+				printAPassenger(list[passengerIndex], typesPassenger, typesLen, statusFlights, statusLen);
+
+				printf("\n\n- 1. Nombre\n- 2. Apellido\n- 3. Precio\n- 4. Tipo de pasajero\n- 5. Codigo de vuelo\n\n");
+				if(utn_getNumeroInt(&auxOption, "\nIngrese opcion a modificar: ", "\nOpcion ingresada invalida.", 1, 5, 2) == 0)
+				{
+					switch(auxOption)
 					{
-						ret = 0;
+						case 1:
+							if(modifyName(list, list[passengerIndex].name, passengerIndex) == 0)
+							{
+								ret = 0;
+							}
+							else
+							{
+								ret = -2; // Error al intentar modificar.
+							}
+							break;
+						case 2:
+							if(modifyLastName(list, list[passengerIndex].lastname, passengerIndex) == 0)
+							{
+								ret = 0;
+							}
+							else
+							{
+								ret = -2; // Error al intentar modificar.
+							}
+							break;
+						case 3:
+							if(modifyPrice(list[passengerIndex].price, passengerIndex, list) == 0)
+							{
+								ret = 0;
+							}
+							else
+							{
+								ret = -2; // Error al intentar modificar.
+							}
+							break;
+						case 4:
+							if(modifyTypePassenger(list, passengerIndex, list[passengerIndex].typePassenger, typesPassenger, typesLen) == 0)
+							{
+								ret = 0;
+							}
+							else
+							{
+								ret = -2; // Error al intentar modificar.
+							}
+							break;
+						case 5:
+							if(modifyFlycode(list, list[passengerIndex].flycode, passengerIndex) == 0)
+							{
+								ret = 0;
+							}
+							else
+							{
+								ret = -2; // Error al intentar modificar.
+							}
+							break;
+						default:
+							printf("\n\nOpcion ingresada invalida. Volviendo al menu principal.\n\n");
+							ret = -3; // opcion de submenu se quedo sin reintentos
+							break;
 					}
-					else
-					{
-						ret = -2; // Error al intentar modificar.
-					}
-					break;
-				case 2:
-					if(modifyName(list, list[passengerIndex].lastname, passengerIndex) == 0)
-					{
-						ret = 0;
-					}
-					else
-					{
-						ret = -2; // Error al intentar modificar.
-					}
-					break;
-				case 3:
-					if(modifyPrice(list[passengerIndex].price, passengerIndex, list) == 0)
-					{
-						ret = 0;
-					}
-					else
-					{
-						ret = -2; // Error al intentar modificar.
-					}
-					break;
-				case 4:
-					if(modifyTypePassenger(list, passengerIndex, list[passengerIndex].typePassenger, typesPassenger, typesLen) == 0)
-					{
-						ret = 0;
-					}
-					else
-					{
-						ret = -2; // Error al intentar modificar.
-					}
-					break;
-				case 5:
-					if(modifyFlycode(list, list[passengerIndex].flycode, passengerIndex) == 0)
-					{
-						ret = 0;
-					}
-					else
-					{
-						ret = -2; // Error al intentar modificar.
-					}
-					break;
-				default:
-					printf("\n\nOpcion ingresada invalida. Volviendo al menu principal.\n\n");
-					ret = -3; // opcion de submenu se quedo sin reintentos
-					break;
+				}
 			}
 		}
 	}
-
-	system("pause");
 
 	return ret;
 }
 
 
-int removePassengersMenu(sPassenger* list, int len, sTypePassenger* typesPassenger, int typesLen, sFlightStatus* statusFlights, int statusLen)
+int removePassengersMenu(sPassenger* list, int len, sTypePassenger* typesPassenger, int typesLen, sFlightStatus* statusFlights, int statusLen, int* qtyPassengers)
 {
 	int ret = -1;
 	int passengerId;
 	int passengerIndex;
-	char respuesta[QTY_NAME];
+	char respuesta;
 
 	if(list != NULL && len > 0 && typesPassenger != NULL && typesLen > 0 && statusFlights != NULL && statusLen > 0)
 	{
@@ -267,17 +269,25 @@ int removePassengersMenu(sPassenger* list, int len, sTypePassenger* typesPasseng
 		sortPassengersById(list, len, UP);
 		printAllPassengers(list, len, typesPassenger, typesLen, statusFlights, statusLen);
 
-		passengerId = getInt("\nIngrese codigo de pasajero a eliminar: ", ID_INICIAL-1, ID_INICIAL+len+1, 3);
-		passengerIndex = findPassengerById(list, len, passengerId);
-		if(passengerId != -1 && passengerIndex > -1 && list[passengerIndex].isEmpty == FALSE)
+		if(utn_getNumeroInt(&passengerId, "\nIngrese codigo de pasajero a eliminar: ", "Error. El codigo ingresado no es un codigo valido. ", ID_INICIAL, ID_INICIAL+len, 2) == 0)
 		{
-			printf("\n\nPasajero a dar de baja:\n\n");
-			printAPassenger(list[passengerIndex], typesPassenger, typesLen, statusFlights, statusLen);
+			passengerIndex = findPassengerById(list, len, passengerId);
 
-			if(getString("\nEscriba 'si' si desea dar de baja el album: ", respuesta, 3, 3) == 0 && stricmp(respuesta, "si") == 0)
+			if(passengerIndex > -1 && list[passengerIndex].isEmpty == FALSE)
 			{
-				removePassenger(list, len, passengerId);
-				ret = 0; //retorno ok
+				printf("\n\nPasajero a dar de baja:\n\n");
+				printAPassenger(list[passengerIndex], typesPassenger, typesLen, statusFlights, statusLen);
+
+				if(	utn_getCharacterLower(&respuesta, "\nDesea 'S' si desea dar de baja el pasajero, u otro caracter para cancelar: ", "Error. Debe ingresar un caracter (S/N): ", 'a', 'z', 2) == 0 &&
+					respuesta == 's')
+				{
+					ret = removePassenger(list, len, passengerId);
+
+					if(ret == 0)
+					{
+						*qtyPassengers -= 1;
+					}
+				}
 			}
 		}
 	}
@@ -291,70 +301,70 @@ int reportPassenger(sPassenger* list, int len, sTypePassenger* typesPassenger, i
 {
 	int ret = -1;
 	int auxOption;
-	int auxOrder = 0;
+	int auxOrder;
+	int rtnOrder = 0;
 
 	if(list != NULL && len > 0 && typesPassenger != NULL && typesLen > 0 && statusFlights != NULL && statusLen > 0)
 	{
 		system("cls");
-		printf("\n\n\t\t\tINFORMES\n\n");
-		auxOption = getInt("\n- 1. Listado de los pasajeros ordenados alfabéticamente por Apellido y Tipo de pasajero.\n- 2. Total y promedio de los precios de los pasajes, y cuántos pasajeros superan el precio promedio.\n- 3. Listado de los pasajeros por Código de vuelo y estados de vuelos ‘ACTIVO’.\n\nIngrese opcion a informar: ", 0, 4, 3);
-		if(auxOption != 2)
-		{
-			auxOrder = getInt("\n\t\t\tORDENAR\n\n- 1. Descendente.\n- 2. Ascendente.\n\nIngrese opcion: ", 0, 3, 3);
-		}
+		printf("\n\n\t\t\tINFORMES\n\n\n- 1. Listado de los pasajeros ordenados alfabéticamente por Apellido y Tipo de pasajero.\n- 2. Total y promedio de los precios de los pasajes, y cuántos pasajeros superan el precio promedio.\n- 3. Listado de los pasajeros por Código de vuelo y estados de vuelos ‘ACTIVO’.\n\n");
 
-		if(auxOrder != -1)
+		if(utn_getNumeroInt(&auxOption, "Ingrese opcion a informar: ", "Error, opcion invalida.", 1, 3, 2) == 0)
 		{
-			auxOrder = auxOrder-1;
-
-			switch(auxOption)
+			if(auxOption != 2)
 			{
-				case 1:
-					if(sortPassengers(list, len, auxOrder) == 0)
-					{
-						printAllPassengers(list, len, typesPassenger, typesLen, statusFlights, statusLen);
-						ret = 0;
-					}
-					else
-					{
-						ret = -2; // Error al intentar informar.
-					}
-					break;
-				case 2:
-					if(reportAverages(list, len) == 0)
-					{
-						ret = 0;
-					}
-					else
-					{
-						ret = -2; // Error al intentar informar.
-					}
-					break;
-				case 3:
-					if(sortPassengersByCode(list, len, auxOrder) == 0 && filterPassengerByStatus(list, len, typesPassenger, typesLen, statusFlights, statusLen) > 0)
-					{
-						ret = 0;
-					}
-					else
-					{
-						ret = -2; // Error al intentar informar.
-					}
-					break;
-				default:
-					ret = -3; // opcion de submenu se quedo sin reintentos
-					break;
+				printf("\n\t\t\tORDENAR\n\n- 0. Descendente.\n- 1. Ascendente.\n\n");
+				rtnOrder = utn_getNumeroInt(&auxOrder, "Ingrese opcion: ", "Error, opcion invalida.", 0, 1, 2);
+			}
+
+			if(rtnOrder == 0)
+			{
+				switch(auxOption)
+				{
+					case 1:
+						if(sortPassengers(list, len, auxOrder) == 0)
+						{
+							printAllPassengers(list, len, typesPassenger, typesLen, statusFlights, statusLen);
+							ret = 0;
+						}
+						else
+						{
+							ret = -2; // Error al intentar informar.
+						}
+						break;
+					case 2:
+						if(reportAverages(list, len) == 0)
+						{
+							ret = 0;
+						}
+						else
+						{
+							ret = -2; // Error al intentar informar.
+						}
+						break;
+					case 3:
+						if(sortPassengersByCode(list, len, auxOrder) == 0 && filterPassengerByStatus(list, len, typesPassenger, typesLen, statusFlights, statusLen) > 0)
+						{
+							ret = 0;
+						}
+						else
+						{
+							ret = -2; // Error al intentar informar.
+						}
+						break;
+					default:
+						ret = -3; // opcion de submenu se quedo sin reintentos
+						break;
+				}
 			}
 		}
-
 	}
-
-	system("pause");
 
 	return ret;
 }
 
 
-int altaForzada(sPassenger* list, int len, sTypePassenger* typesPassenger, sFlightStatus* statusFlights)
+int altaForzada(sPassenger* list, int len, sTypePassenger* typesPassenger, sFlightStatus* statusFlights, int* qtyPassengers)
 {
 	int ret = -1;
 	int i;
@@ -372,12 +382,13 @@ int altaForzada(sPassenger* list, int len, sTypePassenger* typesPassenger, sFlig
 		printf("\n\n\t\t\tCARGA FORZADA DE DATOS\n\n");
 		printf("\n\nCargando...\n\n");
 
-		addPassenger(list, len, idForzados[0], "Juan Carlos", "Martinez", 165343.26, typesPassenger[0].id, "FAS0GR8", statusFlights[2].id);
-		addPassenger(list, len, idForzados[1], "Martin", "Perez", 156432.37, typesPassenger[1].id, "1GS68FE1F", statusFlights[1].id);
-		addPassenger(list, len, idForzados[2], "Luciana", "Alvarez", 98461.91, typesPassenger[2].id, "4G6SR8VE", statusFlights[0].id);
-		addPassenger(list, len, idForzados[3], "Raul", "Perez", 12073.78, typesPassenger[2].id, "FT8974NHF", statusFlights[2].id);
-		addPassenger(list, len, idForzados[4], "Camila", "Martinez", 52156.60, typesPassenger[1].id, "J98YK7U8", statusFlights[0].id);
+		addPassenger(list, len, idForzados[0], "Mariela", "Gomez", 20000.00, typesPassenger[0].id, "AA200", statusFlights[0].id);
+		addPassenger(list, len, idForzados[1], "Juan Pablo", "Martinez", 30000.00, typesPassenger[1].id, "LA201", statusFlights[0].id);
+		addPassenger(list, len, idForzados[2], "Mauro", "Gomez", 18000.00, typesPassenger[2].id, "AA200", statusFlights[0].id);
+		addPassenger(list, len, idForzados[3], "Yolanda", "Alberdi", 32000.00, typesPassenger[0].id, "LA200", statusFlights[0].id);
+		addPassenger(list, len, idForzados[4], "Fabio", "Benitez", 45000.00, typesPassenger[1].id, "AA220", statusFlights[1].id);
 
+		*qtyPassengers += 5;
 		ret = 0;
 	}
 
@@ -411,7 +422,7 @@ int findPassengerById(sPassenger* list, int len, int id)
 	int ret = -1;
 	int i;
 
-	if(list != NULL && len > 0)
+	if(list != NULL && id > 0)
 	{
 		for(i = 0; i < len; i++)
 		{
@@ -461,7 +472,8 @@ int sortPassengers(sPassenger* list, int len, int order)
 		{
 			for(j = i+1; j < len; j++)
 			{
-				if( (order == DOWN && ( (strcmp(list[i].lastname, list[j].lastname) < 0) || ((strcmp(list[i].lastname, list[j].lastname) == 0) && list[i].typePassenger > list[j].typePassenger)) ) || (order == UP && ( (strcmp(list[i].lastname, list[j].lastname) > 0)   || ((strcmp(list[i].lastname, list[j].lastname) == 0) && list[i].typePassenger < list[j].typePassenger)) ) )
+				if( (order == DOWN && ( (strcmp(list[i].lastname, list[j].lastname) < 0) || ((strcmp(list[i].lastname, list[j].lastname) == 0) && list[i].typePassenger < list[j].typePassenger)) ) ||
+					(order == UP && ( (strcmp(list[i].lastname, list[j].lastname) > 0)   || ((strcmp(list[i].lastname, list[j].lastname) == 0) && list[i].typePassenger > list[j].typePassenger)) ) )
 				{
 					swapPassengers(list, i, j);
 				}
@@ -482,9 +494,8 @@ int printAllPassengers(sPassenger* list, int length, sTypePassenger* typePasseng
 
 	if(list != NULL && length > 0 && typePassengers != NULL && typesLen > 0 && FlightsStatus != NULL && statusLen > 0)
 	{
-		printf("\n\n%s\t%20s\t%20s\t%10s\t%15s\t%20s\t%10s\n\n", "ID", "NOMBRE", "APELLIDO", "PRECIO", "CODIGO DE VUELO", "TIPO DE PASAJERO", "ESTATUS");
+		printf("\n\n%4s\t%20s\t%20s\t%10s\t%15s\t%20s\t%10s\n\n", "ID", "NOMBRE", "APELLIDO", "PRECIO", "CODIGO DE VUELO", "TIPO DE PASAJERO", "ESTATUS");
 		printf("-------------------------------------------------------------------------------------------------------------------------------------\n\n");
-
 
 		for(i = 0; i < length; i++)
 		{
@@ -510,13 +521,13 @@ void printAPassenger(sPassenger aPassenger, sTypePassenger* typePassengers, int 
 	{
 		if( getTypePassengerName(aPassenger.typePassenger, typePassengers, typesLen, typePassName) == 0 && getFlightStatusName(aPassenger.statusFlight, FlightsStatus, statusLen, flightStatusName) == 0)
 		{
-			printf("%d\t%20s\t%20s\t$ %.2f\t%10s\t%20s\t%10s\n",	aPassenger.id,
+			printf("%04d\t%20s\t%20s\t$ %.2f\t%10s\t%20s\t%10s\n",	aPassenger.id,
 																	aPassenger.name,
 																	aPassenger.lastname,
 																	aPassenger.price,
 																	aPassenger.flycode,
 																	typePassName,
-																	flightStatusName	);
+																	flightStatusName);
 		}
 	}
 }
@@ -533,7 +544,8 @@ int sortPassengersByCode(sPassenger* list, int len, int order)
 		{
 			for(j = i+1; j < len; j++)
 			{
-				if( (order == UP && strcmp(list[i].flycode, list[j].flycode) > 0) || (order == DOWN && strcmp(list[i].flycode, list[j].flycode) < 0))
+				if( (order == UP && strcmp(list[i].flycode, list[j].flycode) > 0) ||
+					(order == DOWN && strcmp(list[i].flycode, list[j].flycode) < 0)	)
 				{
 					swapPassengers(list, i, j);
 				}
@@ -554,14 +566,13 @@ int filterPassengerByStatus(sPassenger* list, int len, sTypePassenger* typePasse
 
 	if(list != NULL && typePassengers != NULL && FlightsStatus != NULL && len > 0 && typesLen > 0 && statusLen > 0)
 	{
+		ret = 0;
 		printf("\n\n%s\t%20s\t%20s\t%10s\t%15s\t%20s\t%10s\n", "ID", "NOMBRE", "APELLIDO", "PRECIO", "CODIGO DE VUELO", "TIPO DE PASAJERO", "ESTATUS");
 		printf("-------------------------------------------------------------------------------------------------------------------------------------\n\n");
 
-		ret = 0;
-
 		for(i = 0; i < len; i++)
 		{
-			if(list[i].statusFlight == ACTIVO)
+			if(list[i].statusFlight == ACTIVO && list[i].isEmpty == FALSE)
 			{
 				printAPassenger(list[i], typePassengers, typesLen, FlightsStatus, statusLen);
 				ret++;
@@ -576,15 +587,17 @@ int filterPassengerByStatus(sPassenger* list, int len, sTypePassenger* typePasse
 int sortPassengersById(sPassenger* list, int len, int order)
 {
 	int ret = -1;
-	int i, j;
+	int i;
+	int j;
 
-	if(list != NULL && len > 0 && order > -1 && order < 2)
+	if(list != NULL && len > 0 && (order == 0 || order == 1))
 	{
 		for(i = 0; i < len-1; i++)
 		{
 			for(j = i+1; j < len; j++)
 			{
-				if( (order == UP && list[i].id > list[j].id) || (order == DOWN && list[i].id < list[j].id) )
+				if( (order == UP && list[i].id > list[j].id) ||
+					(order == DOWN && list[i].id < list[j].id) )
 				{
 					swapPassengers(list, i, j);
 				}
@@ -603,7 +616,7 @@ int swapPassengers(sPassenger* list, int PassengerA, int PassengerB)
 	int ret = -1;
 	sPassenger auxPassenger;
 
-	if(list != NULL)
+	if(list != NULL && list[PassengerA].isEmpty == FALSE && list[PassengerB].isEmpty == FALSE)
 	{
 		auxPassenger = list[PassengerA];
 		list[PassengerA] = list[PassengerB];
@@ -642,14 +655,12 @@ int modifyName(sPassenger* list, char actualName[], int index)
 {
 	int ret = -1;
 	char auxName[QTY_NAME];
-	int retString;
 
 	if(actualName != NULL && list != NULL && index >= 0)
 	{
 		printf("\nNombre actual: %s\n", actualName);
 
-		retString = getString("Ingrese nuevo: ", auxName, QTY_NAME, 3);
-		if (retString != -1 && esSoloLetras(auxName))
+		if(utn_getStringLetras(auxName, sizeof(auxName), "Ingrese nuevo nombre: ", "Error. ", 2) == 0)
 		{
 			strcpy(list[index].name, auxName);
 			ret = 0;
@@ -664,14 +675,12 @@ int modifyLastName(sPassenger* list, char actualLastName[], int index)
 {
 	int ret = -1;
 	char auxName[QTY_NAME];
-	int retString;
 
 	if(actualLastName != NULL && list != NULL && index >= 0)
 	{
 		printf("\nApellido actual: %s\n", actualLastName);
 
-		retString = getString("Ingrese nuevo: ", auxName, QTY_NAME, 3);
-		if (retString != -1 && esSoloLetras(auxName))
+		if(utn_getStringLetras(auxName, sizeof(auxName), "Ingrese nuevo apellido: ", "Error. ", 2) == 0)
 		{
 			strcpy(list[index].lastname, auxName);
 			ret = 0;
@@ -686,14 +695,12 @@ int modifyPrice(float actualPrice, int index, sPassenger* list)
 {
 	int ret = -1;
 	float auxFloat;
-	int retFloat;
 
 	if(actualPrice > 0 && list != NULL && index >= 0)
 	{
 		printf("\nPrecio actual: %.2f\n", actualPrice);
 
-		retFloat = pedirNumFlotante("Ingrese nuevo importe: ", 0.0, MAX_PRICE, &auxFloat, 3);
-		if (retFloat != -1)
+		if(utn_getNumeroFloat(&auxFloat, "Ingrese nuevo importe: ", "Error. ", 0.01, MAX_PRICE, 2) == 0)
 		{
 			list[index].price = auxFloat;
 			ret = 0;
@@ -709,7 +716,7 @@ int modifyTypePassenger(sPassenger* list, int index, int actualTypePassId, sType
 {
 	int ret = -1;
 	char typePassengerName[QTY_NAME];
-	int retTypePass;
+	int auxTypePass;
 
 	if(actualTypePassId > 0 && list != NULL && index >= 0 && typePassenger != NULL && typeLen > 0)
 	{
@@ -717,14 +724,12 @@ int modifyTypePassenger(sPassenger* list, int index, int actualTypePassId, sType
 		{
 			printf("\nTipo de pasajero actual: %s\n", typePassengerName);
 		}
-		if(printAllTypePassengers(typePassenger, typeLen, "\n\t\tCLASES DE VUELOS\n") != -1)
+
+		printAllTypePassengers(typePassenger, typeLen, "\n\t\tCLASES DE VUELOS\n");
+		if(utn_getNumeroInt(&auxTypePass, "\nIngrese tipo de pasajero (por numero): ", "Error. ", 1, typeLen, 2) == 0)
 		{
-			retTypePass = getInt("\nIngrese tipo de pasajero (por numero): ", 0, typeLen+1, 3);
-			if(retTypePass != -1)
-			{
-				list[index].typePassenger = getTypePassengerByIndex(typePassenger, retTypePass);
-				ret = 0;
-			}
+			list[index].typePassenger = getTypePassengerByIndex(typePassenger, auxTypePass-1);
+			ret = 0;
 		}
 	}
 
@@ -735,15 +740,13 @@ int modifyTypePassenger(sPassenger* list, int index, int actualTypePassId, sType
 int modifyFlycode(sPassenger* list, char actualCode[], int index)
 {
 	int ret = -1;
-	char auxName[QTY_NAME];
-	int retString;
+	char auxName[QTY_CODE];
 
 	if(actualCode != NULL && list != NULL && index >= 0)
 	{
 		printf("\nCodigo de vuelo actual: %s\n", actualCode);
 
-		retString = getString("Ingrese nuevo: ", auxName, QTY_CODE, 3);
-		if (retString != -1 && esAlfaNumerico(auxName))
+		if(utn_getStringAlphaNum(auxName, sizeof(auxName), "Ingrese nuevo codigo de vuelo: ", "Error. ", 2) == 0)
 		{
 			strcpy(list[index].flycode, auxName);
 			ret = 0;

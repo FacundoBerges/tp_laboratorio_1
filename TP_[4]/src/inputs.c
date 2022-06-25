@@ -105,15 +105,15 @@ static int getInt(int* pResult)
 static int esNumericoInt(char str[])
 {
 	int retorno = 1;
-	int i = 0;
+	int i=0;
 
 	if(str != NULL && strlen(str) > 0)
 	{
+
 		while(str[i] != '\0')
 		{
 			if(i == 0 && (str[i] == '-' || str[i] == '+'))
 			{
-				i++;
 				continue;
 			}
 
@@ -122,7 +122,6 @@ static int esNumericoInt(char str[])
 				retorno = 0;
 				break;
 			}
-
 			i++;
 		}
 	}
@@ -209,11 +208,10 @@ static int esNumericoFloat(char str[])
 		{
 			if(i == 0 && (str[i] == '-' || str[i] == '+'))
 			{
-				i++;
 				continue;
 			}
 
-			if(str[i] < '0' || str[i] > '9')
+			if((str[i] < '0' || str[i] > '9'))
 			{
 				if(str[i] == '.' && contadorPunto == 0)
 				{
@@ -225,7 +223,6 @@ static int esNumericoFloat(char str[])
 					break;
 				}
 			}
-
 			i++;
 		}
 	}
@@ -335,7 +332,7 @@ int utn_getStringLetras(char* pArrayChar, int maxChar, char* msge, char* errorMs
 		{
 			printf("%s", msge);
 
-			if( getStringLetras(buffer, sizeof(buffer)) == 0 && strlen(buffer) < maxChar && strlen(buffer) > 0)
+			if( getStringLetras(buffer, sizeof(buffer)) == 0 && strlen(buffer) < maxChar)
 			{
 				strcpy(pArrayChar, buffer);
 				rtn = 0;
@@ -419,7 +416,7 @@ int utn_getStringAlphaNum(char* pArrayChar, int maxChar, char* msge, char* error
 		{
 			printf("%s", msge);
 			fflush(stdin);
-			if( getStringAlphaNum(buffer, sizeof(buffer)) == 0 && strlen(buffer) < maxChar && strlen(buffer) > 0)
+			if( getStringAlphaNum(buffer, sizeof(buffer)) == 0 && strlen(buffer) < maxChar)
 			{
 				strcpy(pArrayChar, buffer);
 				rtn = 0;
