@@ -49,7 +49,7 @@ int initPassengers(sPassenger* list, int len);
 
 
 /**
- * @fn int cargarDatos(sPassenger*, int, sTypePassenger*, int, sFlightStatus*, int)
+ * @fn int cargarDatos(sPassenger*, int, sTypePassenger*, int, sFlightStatus*, int, int*)
  * @brief  carga datos y si los datos son validos los pasa a addPassenger para que sean adheridos al array
  *
  * @param list sPassenger*  Pointer to array of passenger.
@@ -58,7 +58,8 @@ int initPassengers(sPassenger* list, int len);
  * @param typesLen	Array lenght.
  * @param statusFlights  Pointer to array of flight status.
  * @param statusLen	 Array lenght.
- * @return Return (-1) if Error [Invalid length or NULL pointer or invalid data] - (0) if Ok
+ * @param qtyPassengers		Pointer to  qty of passengers.
+ * @return Return (-1) if Error [Invalid length or NULL pointer or invalid data] - (-2) no retries left - (0) if Ok
  */
 int cargarDatos(sPassenger* list, int len, sTypePassenger* typesOfPassenger, int typesLen, sFlightStatus* statusFlights, int statusLen, int* qtyPassengers);
 

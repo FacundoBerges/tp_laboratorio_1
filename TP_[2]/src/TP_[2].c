@@ -26,6 +26,7 @@ int main(void) {
 	char confirm = 'n';
     int option;
     int cantCargados = 0;
+    int rtn;
 
 	sPassenger passengers[MAX_PASSENGER];
 	sTypePassenger typePassenger[MAX_TYPE_PASSENGER] = {	{101, "ECONOMICA"},
@@ -39,32 +40,55 @@ int main(void) {
 
 	do
 	{
-		fflush(stdin);
 		printf("\n\n\t\t\tADMINISTRADOR DE PASAJES AEREOS\n\n1. ALTAS\n2. MODIFICAR\n3. BAJA\n4. INFORMAR\n5. CARGA FORZADA DE DATOS\n6. SALIR\n\n");
+		fflush(stdin);
 		utn_getNumeroInt(&option, "Ingrese una opcion: ", "Error. (opciones 1 a 5, o 6 para salir). ", 1, 6, 2);
 
 		switch(option)
 		{
 			case 1:
-				if(cargarDatos(passengers, MAX_PASSENGER, typePassenger, MAX_TYPE_PASSENGER, flightStatus, MAX_FLIGHT_STATUS, &cantCargados) == 0)
+				rtn = cargarDatos(passengers, MAX_PASSENGER, typePassenger, MAX_TYPE_PASSENGER, flightStatus, MAX_FLIGHT_STATUS, &cantCargados);
+
+				if(rtn == 0)
 				{
 					printf("\n\nAlta exitosa!!\n");
 				}
-				else
+				else if(rtn == -1)
 				{
 					printf("\n\nError al cargar datos... volviendo al menu.\n");
 				}
+				else
+				{
+					printf("\n\nError al cargar datos (se agotaron los reintentos)... volviendo al menu.\n");
+				}
 				break;
 			case 2:
-				if(cantCargados != 0)
+				if(cantCargados > 0)
 				{
-					if(modifyPassenger(passengers, MAX_PASSENGER, typePassenger, MAX_TYPE_PASSENGER, flightStatus, MAX_FLIGHT_STATUS) == 0)
+					rtn = modifyPassenger(passengers, MAX_PASSENGER, typePassenger, MAX_TYPE_PASSENGER, flightStatus, MAX_FLIGHT_STATUS);
+
+					switch (rtn)
 					{
-						printf("\n\nModificacion exitosa!!\n");
-					}
-					else
-					{
-						printf("\n\nError al modificar datos... volviendo al menu.\n");
+						case 0:
+							printf("\n\nModificacion exitosa!!\n");
+							break;
+						case -1:
+							printf("\n\nError al modificar datos... volviendo al menu.\n");
+							break;
+						case -2:
+							printf("\n\nError al modificar datos (se agotaron los reintentos)... volviendo al menu.\n");
+							break;
+						case -3:
+							printf("\n\nError al modificar datos, el ID ingresado no se encuentra activo... volviendo al menu.\n");
+							break;
+						case -4:
+							printf("\n\nError al modificar datos (se agotaron los reintentos)... volviendo al menu.\n");
+							break;
+						case -5:
+							printf("\n\nError al modificar datos (se agotaron los reintentos)... volviendo al menu.\n");
+							break;
+						default:
+							break;
 					}
 				}
 				else
@@ -73,15 +97,32 @@ int main(void) {
 				}
 				break;
 			case 3:
-				if(cantCargados != 0)
+				if(cantCargados > 0)
 				{
-					if(removePassengersMenu(passengers, MAX_PASSENGER, typePassenger, MAX_TYPE_PASSENGER, flightStatus, MAX_FLIGHT_STATUS, &cantCargados) == 0)
+					rtn = removePassengersMenu(passengers, MAX_PASSENGER, typePassenger, MAX_TYPE_PASSENGER, flightStatus, MAX_FLIGHT_STATUS, &cantCargados);
+
+					switch (rtn)
 					{
-						printf("\n\nPasajero dado de baja correctamente!!\n");
-					}
-					else
-					{
-						printf("\nEl pasajero no se ha dado de baja... volviendo al menu.\n");
+						case 0:
+							printf("\n\nPasajero dado de baja correctamente!!\n");
+							break;
+						case -1:
+							printf("\nEl pasajero no se ha dado de baja... volviendo al menu.\n");
+							break;
+						case -2:
+							printf("\nEl pasajero no se ha dado de baja (se agotaron los reintentos)... volviendo al menu.\n");
+							break;
+						case -3:
+							printf("\nEl pasajero no se ha dado de baja, el ID ingresado no se encuentra activo... volviendo al menu.\n");
+							break;
+						case -4:
+							printf("\nEl pasajero no se ha dado de baja (Baja cancelada)... volviendo al menu.\n");
+							break;
+						case -5:
+							printf("\nEl pasajero no se ha dado de baja (Error al intentar dar de baja)... volviendo al menu.\n");
+							break;
+						default:
+							break;
 					}
 				}
 				else
@@ -90,11 +131,28 @@ int main(void) {
 				}
 				break;
 			case 4:
-				if(cantCargados != 0)
+				if(cantCargados > 0)
 				{
-					if(reportPassenger(passengers, MAX_PASSENGER, typePassenger, MAX_TYPE_PASSENGER, flightStatus, MAX_FLIGHT_STATUS) != 0)
-					{
-						printf("\nError al generar informes... volviendo al menu.\n");
+					rtn = reportPassenger(passengers, MAX_PASSENGER, typePassenger, MAX_TYPE_PASSENGER, flightStatus, MAX_FLIGHT_STATUS);
+
+					switch (rtn) {
+						case 0:
+							printf("\n\nInformes generados correctamente.\n");
+							break;
+						case -1:
+							printf("\nError al generar informes... volviendo al menu.\n");
+							break;
+						case -2:
+							printf("\nError al generar informes (se agotaron los reintentos)... volviendo al menu.\n");
+							break;
+						case -3:
+							printf("\nError al generar informes (se agotaron los reintentos)... volviendo al menu.\n");
+							break;
+						case -4:
+							printf("\nError al generar informes... volviendo al menu.\n");
+							break;
+						default:
+							break;
 					}
 				}
 				else
@@ -105,7 +163,7 @@ int main(void) {
 			case 5:
 				if(altaForzada(passengers, MAX_PASSENGER, typePassenger, flightStatus, &cantCargados) == 0)
 				{
-					printf("\n\nCargar de datos forzada correctamente!!\n");
+					printf("\n\nCarga de datos forzada correctamente!!\n");
 				}
 				else
 				{
@@ -116,7 +174,7 @@ int main(void) {
 				utn_getCharacterLower(&confirm, "Esta seguro que desea salir del programa? (S/N): ", "\nVolviendo al menu principal...\n\n", 'a', 'z', 0);
 				break;
 			default:
-				printf("\nOpcion invalida. Volviendo al menu.\n");
+				printf("\nVolviendo al menu.\n");
 				break;
 		}
 

@@ -92,23 +92,25 @@ int cargarDatos(sPassenger* list, int len, sTypePassenger* typesOfPassenger, int
 		system("cls");
 		printf("\n\n\t\t\tALTA\n\n");
 
-		if(utn_getStringLetras(name, sizeof(name), "Ingrese nombre: ", "Error. Nombre invalido (solo debe contener letras). ", retries) == 0)
+		ret = -2;
+
+		if(utn_getStringLetras(name, sizeof(name), "Ingrese nombre: ", "Error. Nombre invalido (solo debe contener letras). ", retries) == 0)	// Nombre
 		{
-			if(utn_getStringLetras(lastName, sizeof(lastName), "Ingrese apellido: ", "Error. Apellido invalido (solo debe contener letras). ", retries) == 0)
+			if(utn_getStringLetras(lastName, sizeof(lastName), "Ingrese apellido: ", "Error. Apellido invalido (solo debe contener letras). ", retries) == 0)	// Apellido
 			{
-				if(utn_getNumeroFloat(&price, "Ingrese precio: ", "Error. ", 0.01, MAX_PRICE, retries) == 0)
+				if(utn_getNumeroFloat(&price, "Ingrese precio: ", "Error. ", 0.01, MAX_PRICE, retries) == 0)	// Precio
 				{
-					if(utn_getStringAlphaNum(flycode, sizeof(flycode), "Ingrese codigo de vuelo: ", "Error. Codigo invalido (solo debe contener letras y numeros). ", retries) == 0)
+					if(utn_getStringAlphaNum(flycode, sizeof(flycode), "Ingrese codigo de vuelo: ", "Error. Codigo invalido (solo debe contener letras y numeros). ", retries) == 0)	// Codigo de vuelo
 					{
 						printAllTypePassengers(typesOfPassenger, typesLen, "\n\n\t\tCLASES DE VUELOS\n");
-						if(utn_getNumeroInt(&auxTypePassenger, "\nIngrese clase de vuelo de pasaje (por numero): ", "Error. ", 1, typesLen, retries) == 0)
+						if(utn_getNumeroInt(&auxTypePassenger, "\nIngrese clase de vuelo de pasaje (por numero): ", "Error. ", 1, typesLen, retries) == 0)	// Clase de vuelo
 						{
 							typePassenger = getTypePassengerByIndex(typesOfPassenger, auxTypePassenger-1);
 
 							if(typePassenger != -1)
 							{
 								printAllStatusFlights(statusFlights, statusLen, "\n\n\t\tSTATUS DEL VUELO\n");
-								if(utn_getNumeroInt(&auxFlightStatus, "\nIngrese estatus correspondiente del vuelo (por numero): ", "Error. ", 1, statusLen, retries) == 0)
+								if(utn_getNumeroInt(&auxFlightStatus, "\nIngrese estatus correspondiente del vuelo (por numero): ", "Error. ", 1, statusLen, retries) == 0)	// Estatus de vuelo
 								{
 									statusFlight = getFlightStatusByIndex(statusFlights, auxFlightStatus-1);
 
@@ -198,7 +200,7 @@ int modifyPassenger(sPassenger* list, int len, sTypePassenger* typesPassenger, i
 							}
 							else
 							{
-								ret = -2; // Error al intentar modificar.
+								ret = -5; // Error al intentar modificar.
 							}
 							break;
 						case 2:
@@ -208,7 +210,7 @@ int modifyPassenger(sPassenger* list, int len, sTypePassenger* typesPassenger, i
 							}
 							else
 							{
-								ret = -2; // Error al intentar modificar.
+								ret = -5; // Error al intentar modificar.
 							}
 							break;
 						case 3:
@@ -218,7 +220,7 @@ int modifyPassenger(sPassenger* list, int len, sTypePassenger* typesPassenger, i
 							}
 							else
 							{
-								ret = -2; // Error al intentar modificar.
+								ret = -5; // Error al intentar modificar.
 							}
 							break;
 						case 4:
@@ -228,7 +230,7 @@ int modifyPassenger(sPassenger* list, int len, sTypePassenger* typesPassenger, i
 							}
 							else
 							{
-								ret = -2; // Error al intentar modificar.
+								ret = -5; // Error al intentar modificar.
 							}
 							break;
 						case 5:
@@ -238,16 +240,27 @@ int modifyPassenger(sPassenger* list, int len, sTypePassenger* typesPassenger, i
 							}
 							else
 							{
-								ret = -2; // Error al intentar modificar.
+								ret = -5; // Error al intentar modificar.
 							}
 							break;
 						default:
 							printf("\n\nOpcion ingresada invalida. Volviendo al menu principal.\n\n");
-							ret = -3; // opcion de submenu se quedo sin reintentos
 							break;
 					}
 				}
+				else
+				{
+					ret = -4;	// Se agotaron los reintentos de opcion submenu modificar
+				}
 			}
+			else
+			{
+				ret = -3;	// ID ingresado no se encuentra activo
+			}
+		}
+		else
+		{
+			ret = -2;	// Se agotaron los reintentos de ID
 		}
 	}
 
@@ -287,8 +300,24 @@ int removePassengersMenu(sPassenger* list, int len, sTypePassenger* typesPasseng
 					{
 						*qtyPassengers -= 1;
 					}
+					else
+					{
+						ret = -5;	// Error al dar de baja
+					}
+				}
+				else
+				{
+					ret = -4;	// Baja cancelada
 				}
 			}
+			else
+			{
+				ret = -3;	// ID ingresado no se encuentra activo
+			}
+		}
+		else
+		{
+			ret = -2;	// Se agotaron los reintentos de ID
 		}
 	}
 
@@ -311,7 +340,7 @@ int reportPassenger(sPassenger* list, int len, sTypePassenger* typesPassenger, i
 
 		if(utn_getNumeroInt(&auxOption, "Ingrese opcion a informar: ", "Error, opcion invalida.", 1, 3, 2) == 0)
 		{
-			if(auxOption != 2)
+			if(auxOption == 1 || auxOption == 3)
 			{
 				printf("\n\t\t\tORDENAR\n\n- 0. Descendente.\n- 1. Ascendente.\n\n");
 				rtnOrder = utn_getNumeroInt(&auxOrder, "Ingrese opcion: ", "Error, opcion invalida.", 0, 1, 2);
@@ -329,7 +358,7 @@ int reportPassenger(sPassenger* list, int len, sTypePassenger* typesPassenger, i
 						}
 						else
 						{
-							ret = -2; // Error al intentar informar.
+							ret = -4; // Error al intentar informar.
 						}
 						break;
 					case 2:
@@ -339,7 +368,7 @@ int reportPassenger(sPassenger* list, int len, sTypePassenger* typesPassenger, i
 						}
 						else
 						{
-							ret = -2; // Error al intentar informar.
+							ret = -4; // Error al intentar informar.
 						}
 						break;
 					case 3:
@@ -349,14 +378,21 @@ int reportPassenger(sPassenger* list, int len, sTypePassenger* typesPassenger, i
 						}
 						else
 						{
-							ret = -2; // Error al intentar informar.
+							ret = -4; // Error al intentar informar.
 						}
 						break;
 					default:
-						ret = -3; // opcion de submenu se quedo sin reintentos
 						break;
 				}
 			}
+			else
+			{
+				ret = -3;	// Se agotaron los reintentos de opcion de orden
+			}
+		}
+		else
+		{
+			ret = -2;	// Se agotaron los reintentos de opcion submenu
 		}
 	}
 
@@ -382,14 +418,15 @@ int altaForzada(sPassenger* list, int len, sTypePassenger* typesPassenger, sFlig
 		printf("\n\n\t\t\tCARGA FORZADA DE DATOS\n\n");
 		printf("\n\nCargando...\n\n");
 
-		addPassenger(list, len, idForzados[0], "Mariela", "Gomez", 20000.00, typesPassenger[0].id, "AA200", statusFlights[0].id);
-		addPassenger(list, len, idForzados[1], "Juan Pablo", "Martinez", 30000.00, typesPassenger[1].id, "LA201", statusFlights[0].id);
-		addPassenger(list, len, idForzados[2], "Mauro", "Gomez", 18000.00, typesPassenger[2].id, "AA200", statusFlights[0].id);
-		addPassenger(list, len, idForzados[3], "Yolanda", "Alberdi", 32000.00, typesPassenger[0].id, "LA200", statusFlights[0].id);
-		addPassenger(list, len, idForzados[4], "Fabio", "Benitez", 45000.00, typesPassenger[1].id, "AA220", statusFlights[1].id);
-
-		*qtyPassengers += 5;
-		ret = 0;
+		if(	addPassenger(list, len, idForzados[0], "Mariela", "Gomez", 20000.00, typesPassenger[0].id, "AA200", statusFlights[0].id) == 0 &&
+			addPassenger(list, len, idForzados[1], "Juan Pablo", "Martinez", 30000.00, typesPassenger[1].id, "LA201", statusFlights[0].id) == 0 &&
+			addPassenger(list, len, idForzados[2], "Mauro", "Gomez", 18000.00, typesPassenger[2].id, "AA200", statusFlights[0].id) == 0 &&
+			addPassenger(list, len, idForzados[3], "Yolanda", "Alberdi", 32000.00, typesPassenger[0].id, "LA200", statusFlights[0].id) == 0 &&
+			addPassenger(list, len, idForzados[4], "Fabio", "Benitez", 45000.00, typesPassenger[1].id, "AA220", statusFlights[1].id) == 0)
+		{
+			*qtyPassengers += 5;
+			ret = 0;
+		}
 	}
 
 	return ret;
