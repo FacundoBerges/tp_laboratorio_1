@@ -142,32 +142,45 @@ int controller_addPassenger(LinkedList* pArrayListPassenger)
 			getID(&auxId); // Obtengo el siguiente ID de archivo binario, si no existe se crea con el ID 1001
 			saveID(auxId);
 
-								/*			obtencion de datos 			*/
-			utn_getStringLetras(auxName, sizeof(auxName), "\nIngrese nombre: ", "Error.", 2);
-			utn_getStringLetras(auxLastname, sizeof(auxLastname), "\nIngrese apellido: ", "Error.", 2);
-			utn_getNumeroFloat(&auxPrice, "\nIngrese precio: ", "Error.", 0.00001, 1000000000, 2);
-			showTypePassenger();
-			utn_getNumeroInt(&auxTypePassengerId, "\nIngrese tipo de pasajero (por numero): ", "Error.", 1, 3, 2);
-			utn_getStringAlphaNum(auxFlycode, sizeof(auxFlycode), "\nIngrese codigo de vuelo: ", "Error. Maximo 7 Caracteres. ", 2);
-			showFlightStatus();
-			utn_getNumeroInt(&auxStatusFlightId, "\nIngrese estatus de vuelo (por numero): ", "Error.", 1, 4, 2);
+			rtn = -4;	// Predeterminado Si se agotaron los reintentos de ingresos de datos.
 
-			if(	Passenger_setId(auxPassenger, auxId) == 0 &&
-				Passenger_setNombre(auxPassenger, auxName) == 0 &&
-				Passenger_setApellido(auxPassenger, auxLastname) == 0 &&
-				Passenger_setPrecio(auxPassenger, auxPrice) == 0 &&
-				Passenger_setTipoPasajero(auxPassenger, auxTypePassengerId) == 0 &&
-				Passenger_setCodigoVuelo(auxPassenger, auxFlycode) == 0 &&
-				Passenger_setFlightStatus(auxPassenger, auxStatusFlightId) == 0	)
+								/*			obtencion de datos 			*/
+			if(utn_getStringLetras(auxName, sizeof(auxName), "\nIngrese nombre: ", "Error.", 2) == 0)
 			{
-				if(ll_add(pArrayListPassenger, auxPassenger) == 0)
+				if(utn_getStringLetras(auxLastname, sizeof(auxLastname), "\nIngrese apellido: ", "Error.", 2) == 0)
 				{
-					rtn = 0;		// Si se pudieron conseguir todos los datos y se anadio correctamente en el array.
+					if(utn_getNumeroFloat(&auxPrice, "\nIngrese precio: ", "Error.", 0.00001, 1000000000, 2) == 0)
+					{
+						showTypePassenger();
+						if(utn_getNumeroInt(&auxTypePassengerId, "\nIngrese tipo de pasajero (por numero): ", "Error.", 1, 3, 2) == 0)
+						{
+							if(utn_getStringAlphaNum(auxFlycode, sizeof(auxFlycode), "\nIngrese codigo de vuelo: ", "Error. Maximo 7 Caracteres. ", 2) == 0)
+							{
+								showFlightStatus();
+								if(utn_getNumeroInt(&auxStatusFlightId, "\nIngrese estatus de vuelo (por numero): ", "Error.", 1, 4, 2) == 0)
+								{
+									if(	Passenger_setId(auxPassenger, auxId) == 0 &&
+										Passenger_setNombre(auxPassenger, auxName) == 0 &&
+										Passenger_setApellido(auxPassenger, auxLastname) == 0 &&
+										Passenger_setPrecio(auxPassenger, auxPrice) == 0 &&
+										Passenger_setTipoPasajero(auxPassenger, auxTypePassengerId) == 0 &&
+										Passenger_setCodigoVuelo(auxPassenger, auxFlycode) == 0 &&
+										Passenger_setFlightStatus(auxPassenger, auxStatusFlightId) == 0	)
+									{
+										if(ll_add(pArrayListPassenger, auxPassenger) == 0)
+										{
+											rtn = 0;		// Si se pudieron conseguir todos los datos y se anadio correctamente en el array.
+										}
+									}
+									else
+									{
+										rtn = -2;	// Error al setear datos.
+									}
+								}
+							}
+						}
+					}
 				}
-			}
-			else
-			{
-				rtn = -2;	// Error al setear datos.
 			}
 		}
 		else

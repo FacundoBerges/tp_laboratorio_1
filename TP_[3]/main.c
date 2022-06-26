@@ -101,17 +101,25 @@ int main()
 				case 3:
 					rtn = controller_addPassenger(listaPasajeros);
 
-					if(rtn == 0)
+					switch (rtn)
 					{
-						printf("\nPasajero dado de alta correctamente!!\n");
-					}
-					else if(rtn == -1 || rtn == -2)
-					{
-						printf("\nError al dar de alta pasajero... volviendo al menu!!\n");
-					}
-					else if(rtn == -3)
-					{
-						printf("\nError al dar de alta pasajero, no hay espacio suficiente para cargar mas datos... volviendo al menu!!\n");
+						case 0:
+							printf("\nPasajero dado de alta correctamente!!\n");
+							break;
+						case -1:
+							printf("\nError al dar de alta pasajero... volviendo al menu!!\n");
+							break;
+						case -2:
+							printf("\nError al dar de alta pasajero... volviendo al menu!!\n");
+							break;
+						case -3:
+							printf("\nError al dar de alta pasajero, no hay espacio suficiente para cargar mas datos... volviendo al menu!!\n");
+							break;
+						case -4:
+							printf("\nError al dar de alta pasajero (Se agotaron los reintentos de ingresos de datos)... volviendo al menu!!\n");
+							break;
+						default:
+							break;
 					}
 					break;
 				case 4:
@@ -296,6 +304,9 @@ int main()
 					printf("\n\nOpcion Ingresada invalida (opciones 1 a 10)\n");
 					break;
 			}
+
+			printf("\nPulse una tecla para continuar...\n\n");
+			getc(stdin);
 
 		} while(confirm != 's');
 

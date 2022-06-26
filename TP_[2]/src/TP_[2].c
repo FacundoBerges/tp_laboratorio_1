@@ -40,8 +40,9 @@ int main(void) {
 
 	do
 	{
+	    fflush(stdin);
+	    system("cls");
 		printf("\n\n\t\t\tADMINISTRADOR DE PASAJES AEREOS\n\n1. ALTAS\n2. MODIFICAR\n3. BAJA\n4. INFORMAR\n5. CARGA FORZADA DE DATOS\n6. SALIR\n\n");
-		fflush(stdin);
 		utn_getNumeroInt(&option, "Ingrese una opcion: ", "Error. (opciones 1 a 5, o 6 para salir). ", 1, 6, 2);
 
 		switch(option)
@@ -177,6 +178,9 @@ int main(void) {
 				printf("\nVolviendo al menu.\n");
 				break;
 		}
+
+		printf("\nPulse una tecla para continuar...\n\n");
+		getc(stdin);
 
 	} while (confirm != 's');
 
