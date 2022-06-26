@@ -139,12 +139,9 @@ int controller_addPassenger(LinkedList* pArrayListPassenger)
 
 		if(auxPassenger != NULL)
 		{
-			getID(&auxId); // Obtengo el siguiente ID de archivo binario, si no existe se crea con el ID 1001
-			saveID(auxId);
-
 			rtn = -4;	// Predeterminado Si se agotaron los reintentos de ingresos de datos.
 
-								/*			obtencion de datos 			*/
+					/*			obtencion de datos 			*/
 			if(utn_getStringLetras(auxName, sizeof(auxName), "\nIngrese nombre: ", "Error.", 2) == 0)
 			{
 				if(utn_getStringLetras(auxLastname, sizeof(auxLastname), "\nIngrese apellido: ", "Error.", 2) == 0)
@@ -159,6 +156,9 @@ int controller_addPassenger(LinkedList* pArrayListPassenger)
 								showFlightStatus();
 								if(utn_getNumeroInt(&auxStatusFlightId, "\nIngrese estatus de vuelo (por numero): ", "Error.", 1, 4, 2) == 0)
 								{
+									getID(&auxId); // Obtengo el siguiente ID de archivo binario, si no existe se crea con el ID 1001
+									saveID(auxId);
+
 									if(	Passenger_setId(auxPassenger, auxId) == 0 &&
 										Passenger_setNombre(auxPassenger, auxName) == 0 &&
 										Passenger_setApellido(auxPassenger, auxLastname) == 0 &&
