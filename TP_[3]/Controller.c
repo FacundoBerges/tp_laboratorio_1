@@ -424,62 +424,63 @@ int controller_sortPassenger(LinkedList* pArrayListPassenger)
 	if(pArrayListPassenger != NULL)
 	{
 		system("cls");
-		printf("\n\n\t\t\t\t\tORDENAR LISTA DE PASAJEROS\n\n1. Ordenar por ID.\n2. Ordenar por Nombre.\n3. Ordenar por Apellido.\n4. Ordenar por Precio.\n5. Ordenar por Tipo de pasajero.\n6. Ordenar por Codigo de vuelo\n7. Ordenar por Estatus de vuelo.\n0. Volver al menu principal.\n\n");
+		printf("\n\n\t\t\t\t\tORDENAR LISTA DE PASAJEROS\n\n1. Ordenar por ID.\n2. Ordenar por Nombre.\n3. Ordenar por Apellido.\n4. Ordenar por Precio.\n5. Ordenar por Tipo de pasajero.\n6. Ordenar por Codigo de vuelo\n7. Ordenar por Estatus de vuelo.\n8. Volver al menu principal.\n\n");
 
-		if(utn_getNumeroInt(&option, "Ingrese una opcion: ", "Opcion ingresada invalida.\n", 0, 7, 2) == 0)
+		if(utn_getNumeroInt(&option, "Ingrese una opcion: ", "Opcion ingresada invalida.\n", 1, 8, 2) == 0)
 		{
-			if(option != 0 && utn_getNumeroInt(&order, "Ingrese orden (1. Ascendente / 0. Descendente): ", "Error.\n", 0, 1, 2) == 0)
+			if(option >= 1 && option <= 7)
 			{
-				if(option != 0)
+				if(utn_getNumeroInt(&order, "Ingrese orden (1. Ascendente / 0. Descendente): ", "Error.\n", 0, 1, 2) == 0)
 				{
 					printf("\n\nOrdenando pasajeros...\n");
 				}
+				else
+				{
+					rtn = -3;	// Se agotaron los reintentos
+				}
+			}
+			else
+			{
+				rtn = -2;	// Se cancelo ordenamiento
+			}
 
+			if(rtn != -3)
+			{
 				switch(option)
 				{
 					case 1:
-						ll_sort(pArrayListPassenger, Passenger_compareById, order);
+						rtn = ll_sort(pArrayListPassenger, Passenger_compareById, order);
 						break;
 					case 2:
-						ll_sort(pArrayListPassenger, Passenger_compareByName, order);
+						rtn = ll_sort(pArrayListPassenger, Passenger_compareByName, order);
 						break;
 					case 3:
-						ll_sort(pArrayListPassenger, Passenger_compareByLastname, order);
+						rtn = ll_sort(pArrayListPassenger, Passenger_compareByLastname, order);
 						break;
 					case 4:
-						ll_sort(pArrayListPassenger, Passenger_compareByPrice, order);
+						rtn = ll_sort(pArrayListPassenger, Passenger_compareByPrice, order);
 						break;
 					case 5:
-						ll_sort(pArrayListPassenger, Passenger_compareByTypePassenger, order);
+						rtn = ll_sort(pArrayListPassenger, Passenger_compareByTypePassenger, order);
 						break;
 					case 6:
-						ll_sort(pArrayListPassenger, Passenger_compareByFlycode, order);
+						rtn = ll_sort(pArrayListPassenger, Passenger_compareByFlycode, order);
 						break;
 					case 7:
-						ll_sort(pArrayListPassenger, Passenger_compareByFlightStatus, order);
+						rtn = ll_sort(pArrayListPassenger, Passenger_compareByFlightStatus, order);
 						break;
-					case 0:
+					case 8:
 						printf("\nCancelando Ordenamiento...\n");
-						rtn = -2;	// Se cancelo ordenamiento
 						break;
 					default:
 						printf("\nOpcion ingresada invalida.\n");
 						break;
 				}
-
-				if(option != 0)
-				{
-					rtn = 0;
-				}
-			}
-			else
-			{
-				rtn = -3;
 			}
 		}
 		else
 		{
-			rtn = -4;
+			rtn = -4;	// Se agotaron los reintentos
 		}
 	}
 
